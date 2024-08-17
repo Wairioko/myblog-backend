@@ -12,7 +12,7 @@ export const userCreation = async (req, res) => {
         const hashed_password = await bcrypt.hash(password, 10);
         const newUser = new UserModel({username, email, password:hashed_password});
         await newUser.save();
-        const token = jwt.sign({id: newUser._id}, jwtSecret, {expiresIn: '1h'});
+        const token = jwt.sign({id: newUser._id, username: user.username}, jwtSecret, {expiresIn: '1h'});
         console.log("User SignUp successful")
         res.status(201).json({token, message:"User SignUp Successful"})
     }catch(error){
@@ -43,7 +43,7 @@ export const userLogin = async (req, res) => {
             return res.status(401).send({message: "Password does not match. Try again"});
         }
         
-        const token = jwt.sign({id: findUser._id}, jwtSecret, {expiresIn: '1h'});
+        const token = jwt.sign({id: findUser._id, username: findUser.username}, jwtSecret, {expiresIn: '1h'});
         
         res.status(201).json({token, message: "User Login Successful"});
 
