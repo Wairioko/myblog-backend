@@ -9,11 +9,11 @@ router.get('/api/blogs', getAllBlogs);
 
 router.get('/api/blog/:id', getBlogById);
 
-router.post('/api/create-blog', createBlog);
+router.post('/api/create-blog', verifyToken, createBlog);
 
-router.put('/api/update-blog/:id',  updateBlog);
+router.put('/api/update-blog/:id',verifyToken,  updateBlog);
 
-router.delete('/api/delete-blog/:id',  deleteBlog);
+router.delete('/api/delete-blog/:id',verifyToken,  deleteBlog);
 // verifyToken,
 
 export default router;
