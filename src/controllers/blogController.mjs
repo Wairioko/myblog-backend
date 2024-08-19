@@ -20,7 +20,6 @@ export const createBlog = async (req, res) => {
         return res.status(401).send({ message: "User not authenticated or username not available" });
     }
 
-
     try {
         const existingTitle = await BlogModel.findOne({ title });
         
@@ -28,7 +27,8 @@ export const createBlog = async (req, res) => {
             return res.status(409).send({ message: "This title is already taken. Please choose another one." });
         }
 
-        const newBlog = new BlogModel({ title, description, content, author:user.username });
+        const newBlog = new BlogModel({ title, description, content, author: user.username });
+        console.log("Blog data before creating model:", newBlog);
         await newBlog.save();
 
         res.status(201).send({ message: "Blog Created Successfully", blog: newBlog });
@@ -38,10 +38,10 @@ export const createBlog = async (req, res) => {
     }
 }
 
-
 export const updateBlog = async (req, res) => {
     const { title, description, content } = req.body;
     const { id } = req.params;
+    
 
     if (!id) {
         return res.status(400).send({ message: "Invalid Blog Id" });
