@@ -4,7 +4,7 @@ import { BlogModel } from "../models/blogSchema.mjs";
 
 export const getAllBlogs = async (req, res) => {
     const blogs = await BlogModel.find();
-    if(!blogs) return res.status(404).json({message:"No blogs found"})
+    if(!blogs) return res.status(404).send({message:"No blogs found"})
     res.status(200).send(blogs)
 }
 
@@ -28,12 +28,11 @@ export const createBlog = async (req, res) => {
         }
 
         const newBlog = new BlogModel({ title, description, content, author: user.username });
-        console.log("Blog data before creating model:", newBlog);
         await newBlog.save();
 
         res.status(201).send({ message: "Blog Created Successfully", blog: newBlog });
     } catch (error) {
-        console.error("Error creating blog:", error);
+
         res.status(500).send({ message: "Error creating Blog" });
     }
 }
@@ -42,11 +41,6 @@ export const updateBlog = async (req, res) => {
     const { title, description, content } = req.body;
     const { id } = req.params;
     
-
-    if (!id) {
-        return res.status(400).send({ message: "Invalid Blog Id" });
-    }
-
     try {
         // Remove the parseInt, as MongoDB expects a string ID
         const updatedBlog = await BlogModel.findByIdAndUpdate(
@@ -72,7 +66,6 @@ export const updateBlog = async (req, res) => {
 
 export const getBlogById = async(req, res) => {
     const { id } = req.params;
-    if(!id) return res.status(404).send({message:"Invalid Blog Id"})
     try{
         const findBlog = await BlogModel.findOne({ _id: id });
         if(!findBlog) return res.status(404).send({message:"Blog not found"});
@@ -86,10 +79,7 @@ export const getBlogById = async(req, res) => {
 
 
 export const deleteBlog = async(req, res) => {
-
     const { id } = req.params;
-    if(!id) return res.status(404).send({message:"Invalid Blog Id"})
-    
     try{
         const findBlog = await BlogModel.findOneAndDelete({_id: id})
         if(!findBlog) return res.status(404).send({message:"Blog not found"});
