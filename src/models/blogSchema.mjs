@@ -15,7 +15,7 @@ const blogSchema = mongoose.Schema({
         type:String,
         required:true,
         minlength: 10,
-        maxlength: 200
+       
     },
     author:{
         type: String,
@@ -24,6 +24,9 @@ const blogSchema = mongoose.Schema({
     user:{
         type: mongoose.Schema.Types.ObjectId,
         ref:'User'
+    },
+    imageUrls: {
+        type: [],
     }
 })
 
