@@ -34,6 +34,8 @@ npm install
 
 Create a .env file in the root directory.
 Add the following variables:
+
+
 JWT_SECRET=your_jwt_secret
 export GOOGLE_APPLICATION_CREDENTIALS="your_google_app_credentials"
 
@@ -57,7 +59,9 @@ PUT /api/edit-profile - Update user profile
 
 
 
-###Blog
+##Blog##
+
+
 POST /api/create-blog - Create a new blog post
 GET /api/blogs - Retrieve all blog posts
 GET /api/blogs/:id - Retrieve a single blog post
