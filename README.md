@@ -59,7 +59,7 @@ PUT /api/edit-profile - Update user profile
 
 
 
-##Blog##
+## Blog
 
 
 POST /api/create-blog - Create a new blog post
@@ -70,11 +70,11 @@ DELETE /api/delete-blog/:id - Delete a blog post
 
 
 
-Contributing
+## Contributing
 Contributions are welcome! Please fork this repository and submit a pull request with your changes.
 
-License
+## License
 This project is licensed under the MIT License.
 
-Contact
+## Contact
 For any queries or issues, reach out to [charlesmungai5@gmail.com].
