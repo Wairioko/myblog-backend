@@ -7,11 +7,14 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { truncate } from 'fs';
 
 dotenv.config();
 export const jwtSecret = process.env.jwtSecret;
 
 const app = express();
+app.set('trust proxy', true); 
+
 
 const port = 4000;
 
@@ -53,6 +56,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 if (process.argv[1] === __filename) {
-  app.listen(port, () => console.log("Started server on port 4200"));
+  app.listen(port, () => console.log("Started server on port 4000"));
 }
 
