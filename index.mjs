@@ -16,7 +16,7 @@ const app = express();
 const port = 4000;
 
 // Database connection
-mongoose.connect("mongodb://localhost:27017/my-blog")
+mongoose.connect(process.env.mongodburl)
   .then(() => console.log("Database connected successfully"))
   .catch((error) => { console.log("Error connecting to db", error.message) });
 
@@ -53,6 +53,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 if (process.argv[1] === __filename) {
-  app.listen(port, () => console.log("Started server on port 4000"));
+  app.listen(port, () => console.log("Started server on port 4200"));
 }
 
