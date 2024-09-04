@@ -11,6 +11,7 @@ import { truncate } from 'fs';
 
 dotenv.config();
 export const jwtSecret = process.env.jwtSecret;
+const mongodburl = process.env.mongodburl
 
 const app = express();
 app.set('trust proxy', true); 
@@ -19,7 +20,7 @@ app.set('trust proxy', true);
 const port = 4000;
 
 // Database connection
-mongoose.connect(process.env.mongodburl)
+mongoose.connect(mongodburl)
   .then(() => console.log("Database connected successfully"))
   .catch((error) => { console.log("Error connecting to db", error.message) });
 
