@@ -12,12 +12,12 @@ import { truncate } from 'fs';
 dotenv.config();
 export const jwtSecret = process.env.jwtSecret;
 const mongodburl = process.env.mongodburl
+const port  = process.env.port
 
 const app = express();
 app.set('trust proxy', true); 
 
 
-const port = 4000;
 
 // Database connection
 mongoose.connect(mongodburl)
@@ -57,6 +57,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 if (process.argv[1] === __filename) {
-  app.listen(port, () => console.log("Started server on port 4000"));
+  app.listen(port, () => console.log(`Started server on port ${port}`)); 
 }
 
