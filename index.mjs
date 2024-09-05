@@ -33,7 +33,11 @@ const rateLimiter = rateLimit({
 
 // CORS options
 const corsOptions = {
-  origin: 'https://myblog-frontend-5zy3-lwzfzvntb-wairioko-mungais-projects.vercel.app',
+ 
+  origin: ['https://myblog-frontend-5zy3.vercel.app', 
+          'https://myblog-frontend-5zy3-lwzfzvntb-wairioko-mungais-projects.vercel.app' ],
+  methods: 'GET,POST,PUT,DELETE',
+  credentials: true,
   optionsSuccessStatus: 200
 };
 
