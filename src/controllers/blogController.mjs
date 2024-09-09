@@ -9,36 +9,38 @@ const bucketName = "myblogimages";
 const bucket = storage.bucket(bucketName);
 
 
-export const uploadBlogImage = async (file) => {
-    try {
-        if (!file || !file.buffer || file.buffer.length === 0) {
-            throw new Error("No file chosen for upload or file buffer is invalid");
+export const uploadBlogImage = (file) => {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            console.error("No file provided for upload.");
+            return reject("No file provided for upload.");
         }
 
+        console.log("Uploading file:", file.originalname);
         const blob = bucket.file(file.originalname);
         const blobStream = blob.createWriteStream({
             resumable: false,
         });
 
-        return new Promise((resolve, reject) => {
-            blobStream.on('error', (err) => {
-                console.error("Stream error:", err);
-                reject(err);
-            });
-
-            blobStream.on('finish', () => {
-                const publicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
-                resolve(publicUrl);
-            });
-
-            blobStream.end(file.buffer);
+        blobStream.on('finish', () => {
+            const publicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
+            console.log("File uploaded successfully:", publicUrl);
+            resolve(publicUrl);
         });
-    } catch (error) {
-        console.error("Error in uploadBlogImage function:", error);
-        throw error;
-    }
-}
 
+        blobStream.on('error', (err) => {
+            console.error("Upload error:", err);
+            reject(err);
+        });
+
+        // Check if the stream is closed properly
+        blobStream.on('close', () => {
+            console.log("Stream closed.");
+        });
+
+        blobStream.end(file.buffer);
+    });
+}
 
 export const createBlog = async (req, res) => {
     const { title, description, content } = req.body;
