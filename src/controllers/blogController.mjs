@@ -8,16 +8,11 @@ const storage = new Storage();
 const bucketName = "myblogimages";
 const bucket = storage.bucket(bucketName);
 
-const upload = multer({ 
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 5 * 1024 * 1024 } // 5 MB file size limit
-});
 
-
-const uploadBlogImage = (file) => {
-    return new Promise((resolve, reject) => {
-        if (!file) {
-            return reject("No file chosen for upload");
+export const uploadBlogImage = async (file) => {
+    try {
+        if (!file || !file.buffer || file.buffer.length === 0) {
+            throw new Error("No file chosen for upload or file buffer is invalid");
         }
 
         const blob = bucket.file(file.originalname);
@@ -25,19 +20,26 @@ const uploadBlogImage = (file) => {
             resumable: false,
         });
 
-        blobStream.on('error', (err) => {
-            console.error("Stream error:", err); // Log more detailed error information
-            reject(err);
-        });
+        return new Promise((resolve, reject) => {
+            blobStream.on('error', (err) => {
+                console.error("Stream error:", err);
+                reject(err);
+            });
 
-        blobStream.on('finish', () => {
-            const publicUrl =  `https://storage.googleapis.com/${bucketName}/${blob.name}`;
-            resolve(publicUrl);
-        });
+            blobStream.on('finish', () => {
+                const publicUrl = `https://storage.googleapis.com/${bucketName}/${blob.name}`;
+                resolve(publicUrl);
+            });
 
-        blobStream.end(file.buffer);
-    });
+            blobStream.end(file.buffer);
+        });
+    } catch (error) {
+        console.error("Error in uploadBlogImage function:", error);
+        throw error;
+    }
 }
+
+
 export const createBlog = async (req, res) => {
     const { title, description, content } = req.body;
     const user = req.user;
@@ -52,7 +54,7 @@ export const createBlog = async (req, res) => {
 
     try {
         const existingTitle = await BlogModel.findOne({ title });
-        
+
         if (existingTitle) {
             return res.status(409).send({ message: "This title is already taken. Please choose another one." });
         }
@@ -60,9 +62,12 @@ export const createBlog = async (req, res) => {
         let imageUrls = [];
         if (files && files.length > 0) {
             for (let file of files) {
-                const imageUrl = await uploadBlogImage(file);
-                imageUrls.push(imageUrl);
-                console.log("Image URL:", imageUrl);
+                try {
+                    const imageUrl = await uploadBlogImage(file);
+                    imageUrls.push(imageUrl);
+                } catch (error) {
+                    console.error("Error uploading image:", error);
+                }
             }
         }
 
@@ -73,14 +78,16 @@ export const createBlog = async (req, res) => {
             author: user.username, 
             imageUrls
         });
+        console.log("New blog:", newBlog);
         await newBlog.save();
 
         res.status(201).send({ message: "Blog Created Successfully", blog: newBlog });
     } catch (error) {
-        console.error("Error creating blog:", error);
+        console.error("Error creating blog:", error.message);
         res.status(500).send({ message: "Error creating Blog" });
     }
 }
+
 
 
 // function to get all blogs
@@ -91,48 +98,64 @@ export const getAllBlogs = async (req, res) => {
 }
 
 
+const upload = multer({ storage: multer.memoryStorage() });
+
 export const updateBlog = async (req, res) => {
-    const { title, description, content, imageUrls } = req.body;
-    const { id } = req.params;
-    const files = req.files;
+    upload.array('images')(req, res, async (err) => {
+        if (err) {
+            console.error("Multer error:", err);
+            return res.status(400).json({ message: "Error uploading files", error: err });
+        }
 
-    try {
-        let updatedImageUrls = imageUrls ? JSON.parse(imageUrls) : [];
+        const { title, description, content, imageUrls } = req.body;
+        const { id } = req.params;
+        const files = req.files;
 
-        if (files && files.length > 0) {
-            for (let file of files) {
-                const imageUrl = await uploadBlogImage(file);
-                updatedImageUrls.push(imageUrl);
+        console.log('Received data:', { title, description, content, imageUrls, files });
+
+        try {
+            let updatedImageUrls = imageUrls ? JSON.parse(imageUrls) : [];
+
+            if (files && files.length > 0) {
+                for (let file of files) {
+                    try {
+                        const imageUrl = await uploadBlogImage(file);
+                        updatedImageUrls.push(imageUrl);
+                    } catch (error) {
+                        console.error("Error uploading image:", error);
+                    }
+                }
             }
+
+            const updateData = { 
+                title, 
+                description, 
+                content, 
+                imageUrls: updatedImageUrls
+            };
+
+            const updatedBlog = await BlogModel.findByIdAndUpdate(
+                id,
+                updateData,
+                { new: true, runValidators: true }
+            );
+
+            if (!updatedBlog) {
+                return res.status(404).send({ message: "Blog not found" });
+            }
+
+            console.log("Updated blog:", updatedBlog);
+
+            res.status(200).send({ message: "Blog Updated Successfully", blog: updatedBlog });
+        } catch (error) {
+            console.error("Error updating blog:", error);
+            if (error.name === 'CastError') {
+                return res.status(400).send({ message: "Invalid Blog Id format" });
+            }
+            res.status(500).send({ message: "Error Updating Blog" });
         }
-
-        const updateData = { 
-            title, 
-            description, 
-            content, 
-            imageUrls: updatedImageUrls
-        };
-
-        const updatedBlog = await BlogModel.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true, runValidators: true }
-        );
-
-        if (!updatedBlog) {
-            return res.status(404).send({ message: "Blog not found" });
-        }
-
-        res.status(200).send({ message: "Blog Updated Successfully", blog: updatedBlog });
-    } catch (error) {
-        console.error("Error updating blog:", error);
-        if (error.name === 'CastError') {
-            return res.status(400).send({ message: "Invalid Blog Id format" });
-        }
-        res.status(500).send({ message: "Error Updating Blog" });
-    }
+    });
 };
-
 
 export const getBlogById = async(req, res) => {
     const { id } = req.params;
