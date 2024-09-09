@@ -2,12 +2,15 @@ import { BlogModel } from "../models/blogSchema.mjs";
 import { Storage } from "@google-cloud/storage";
 import multer from "multer";
 
+const keyFile = JSON.parse(process.env.GOOGLE_CLOUD_KEYFILE_JSON);
 
+const storage = new Storage({
+  credentials: keyFile,
+  projectId: keyFile.project_id,
+});
 
-const storage = new Storage();
 const bucketName = "myblogimages";
 const bucket = storage.bucket(bucketName);
-
 
 export const uploadBlogImage = (file) => {
     return new Promise((resolve, reject) => {
@@ -41,6 +44,8 @@ export const uploadBlogImage = (file) => {
         blobStream.end(file.buffer);
     });
 }
+
+
 
 export const createBlog = async (req, res) => {
     const { title, description, content } = req.body;
