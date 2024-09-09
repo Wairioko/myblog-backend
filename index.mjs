@@ -36,7 +36,7 @@ const corsOptions = {
  
   origin: [
           'https://myblog-frontend-drab.vercel.app',
-          'https://myblog-frontend-pdjwzf75j-wairioko-mungais-projects.vercel.app'
+          'https://myblog-frontend-ix7y0skaw-wairioko-mungais-projects.vercel.app/'
            ],
   methods: 'GET,POST,PUT,DELETE',
   credentials: true,
