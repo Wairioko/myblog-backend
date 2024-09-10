@@ -1,4 +1,5 @@
 import { UserModel } from "../models/userSchema.mjs";
+import { BlogModel } from "../models/blogSchema.mjs";
 import bcrypt from 'bcrypt';
 import jwt, { decode } from 'jsonwebtoken'
 import { jwtSecret } from "../../index.mjs";
@@ -120,6 +121,7 @@ export const editUserProfile = async (req, res) => {
         return res.status(500).json({ message: "Error updating user profile", error: error.message });
     }
 }
+
 
 
 
