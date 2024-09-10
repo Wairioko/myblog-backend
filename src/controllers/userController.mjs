@@ -86,9 +86,8 @@ export const userProfile = async (req, res) => {
 };
 
 
-
 export const editUserProfile = async (req, res) => {
-    const {username} = req.body;
+    const { username } = req.body;
     let token;
     const authHeader = req.headers['authorization'] || req.headers['Authorization'];
 
@@ -107,26 +106,33 @@ export const editUserProfile = async (req, res) => {
         req.user = { _id: decoded.id, username: decoded.username };
         const user = req.user;
 
-        const updatedUser = await UserModel.findByIdAndUpdate(user._id, { 'username': username }, { new: true });
-        const updatedBlogAuthor = await BlogModel.findOneAndUpdate(
-            { username: user.username },  // Find by username
-            { username: username },  // Update with the new username
-            { new: true }  // Return the updated document
-          );
+        // Step 1: Update the user's username in the UserModel
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            user._id, 
+            { 'username': username }, 
+            { new: true }
+        );
 
-        if (!updatedBlogAuthor) {
-            return res.status(404).json({ message: "Author not found" });
-        }
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
         }
-        return res.status(200).json({ message: "User profile updated successfully"});
-    }catch(error){
+
+        // Step 2: 
+        const updatedBlogAuthor = await BlogModel.updateMany(
+            { username: user.username },  // match the old username
+            { username: username },       // replace with new username
+            { new: true }
+        );
+
+        if (updatedBlogAuthor.modifiedCount === 0) {
+            return res.status(404).json({ message: "No blogs found to update author name" });
+        }
+
+        return res.status(200).json({ message: "User profile and blog author updated successfully" });
+    } catch (error) {
         console.log(error);
         return res.status(500).json({ message: "Error updating user profile", error: error.message });
     }
-}
-
-
+};
 
 
