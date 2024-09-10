@@ -2,6 +2,7 @@ import { BlogModel } from "../models/blogSchema.mjs";
 import { Storage } from "@google-cloud/storage";
 import multer from "multer";
 
+
 const keyFile = JSON.parse(process.env.GOOGLE_CLOUD_KEYFILE_JSON);
 
 const storage = new Storage({
@@ -81,7 +82,8 @@ export const createBlog = async (req, res) => {
         const newBlog = new BlogModel({ 
             title, 
             description, 
-            content, 
+            content,
+            user: user._id,
             author: user.username, 
             imageUrls
         });
