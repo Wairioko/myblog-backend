@@ -107,6 +107,10 @@ export const editUserProfile = async (req, res) => {
         const user = req.user;
 
         const updatedUser = await UserModel.findByIdAndUpdate(user._id, { 'username': username }, { new: true });
+        const updatedBlogAuthor = await BlogModel.findByIdAndUpdate(user.username, { 'username': username }, { new: true });
+        if (!updatedBlogAuthor) {
+            return res.status(404).json({ message: "Author not found" });
+        }
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
         }
