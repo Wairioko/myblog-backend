@@ -23,7 +23,8 @@ router.get('/api/blog/:id', getBlogById);
 
 router.post('/api/create-blog',  upload.array('images', 5) ,verifyToken, createBlog);
 
-router.put('/api/update-blog/:id',verifyToken,  updateBlog);
+router.put('/api/update-blog/:id', upload.array('images'), verifyToken, updateBlog);
+
 
 router.delete('/api/delete-blog/:id',verifyToken,  deleteBlog);
 // verifyToken,
