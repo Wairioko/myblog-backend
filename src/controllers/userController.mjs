@@ -106,7 +106,7 @@ export const editUserProfile = async (req, res) => {
         req.user = { _id: decoded.id, username: decoded.username };
         const user = req.user;
 
-        // Step 1: Update the user's username in the UserModel
+        
         const updatedUser = await UserModel.findByIdAndUpdate(
             user._id, 
             { 'username': username }, 
@@ -117,10 +117,10 @@ export const editUserProfile = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        // Step 2: 
+        
         const updatedBlogAuthor = await BlogModel.updateMany(
-            { username: user.username },  // match the old username
-            { username: username },       // replace with new username
+            { username: user.username },  
+            { username: username },       
             { new: true }
         );
 

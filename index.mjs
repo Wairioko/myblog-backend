@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { truncate } from 'fs';
+
 
 dotenv.config();
 export const jwtSecret = process.env.jwtSecret;
